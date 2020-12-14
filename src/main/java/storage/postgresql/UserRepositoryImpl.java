@@ -46,15 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
 				UserType userType = result.getObject(2, UserType.class);
 				Integer groupId = result.getInt(3);
 				String password = result.getString(4);
-
-				User user = new User();
-
-				user.setLogin(login);
-				user.setName(name);
-				user.setUserType(userType);
-				user.setGroupId(groupId);
-				user.setPassword(password);
-
+				User user = new User(login, password, name, userType, groupId);
 				return Optional.of(user);
 			} catch (SQLException e) {
 				return Optional.empty();
@@ -77,15 +69,7 @@ public class UserRepositoryImpl implements UserRepository {
 				UserType userType = result.getObject(2, UserType.class);
 				Integer groupId = result.getInt(3);
 				String password = result.getString(4);
-
-				User user = new User();
-
-				user.setLogin(login);
-				user.setName(name);
-				user.setUserType(userType);
-				user.setGroupId(groupId);
-				user.setPassword(password);
-
+				User user = new User(login, password, name, userType, groupId);
 				userList.add(user);
 			}
 			return userList;
