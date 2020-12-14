@@ -10,11 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Data
 @AllArgsConstructor
 public class GroupRepositoryImpl implements GroupRepository {
 
-    public Connector connector;
+    private Connector connector;
 
     @Override
     public Group saveNewEntity(Group entity) {
