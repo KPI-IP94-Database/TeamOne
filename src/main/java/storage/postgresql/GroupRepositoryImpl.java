@@ -19,11 +19,13 @@ public class GroupRepositoryImpl implements GroupRepository {
         String name = entity.getName();
         String groupheadLogin = entity.getGroupHeadLogin();
         String statement = "INSERT INTO Groups(name, grouphead_login) " +
-                "VALUES('" + name + "', '" + groupheadLogin + "')";
+                "VALUES('" + name + "', '" + groupheadLogin + "') RETURNING id";
         ResultSet result = connector.executeStatement(statement);
         try {
-            Integer id = result.getInt(1);
-            entity.setId(id);
+            while(result.next()) {
+                Integer id = result.getInt(1);
+                entity.setId(id);
+            }
             return entity;
         } catch (SQLException exception) {
             return null;
@@ -34,22 +36,26 @@ public class GroupRepositoryImpl implements GroupRepository {
     public Optional<Group> findById(Integer id) {
         String statement = "SELECT * FROM Groups WHERE id = " + id;
         ResultSet result = connector.executeStatement(statement);
-        String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id;
-        ResultSet resultLogins = connector.executeStatement(getLoginsStatement);
-        ArrayList<String> memberLogins = new ArrayList<>();
         if (result == null) {
             return Optional.empty();
         } else {
             try {
-                String name = result.getString(2);
-                String groupHeadLogin = result.getString(3);
-                while(resultLogins.next()) {
-                    memberLogins.add(resultLogins.getString(1));
+                while (result.next()) {
+                    String name = result.getString("name");
+                    String groupHeadLogin = result.getString("grouphead_login");
+                    String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id +
+                            " AND (user_type = 'student' OR user_type = 'group_head')";
+                    ResultSet resultLogins = connector.executeStatement(getLoginsStatement);
+                    ArrayList<String> memberLogins = new ArrayList<>();
+                    while(resultLogins.next()) {
+                        memberLogins.add(resultLogins.getString(1));
+                    }
+                    return Optional.of(new Group(id, name, groupHeadLogin, memberLogins));
                 }
-                return Optional.of(new Group(id, name, groupHeadLogin, memberLogins));
             } catch (SQLException e) {
                 return Optional.empty();
             }
+            return Optional.empty();
         }
     }
 
@@ -63,7 +69,8 @@ public class GroupRepositoryImpl implements GroupRepository {
                 Integer id = result.getInt(1);
                 String name = result.getString(2);
                 String groupHeadLogin = result.getString(3);
-                String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id;
+                String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id +
+                        " AND (user_type = 'student' OR user_type = 'group_head')";
                 ResultSet resultLogins = connector.executeStatement(getLoginsStatement);
                 ArrayList<String> memberLogins = new ArrayList<>();
                 while(resultLogins.next()) {
@@ -80,7 +87,11 @@ public class GroupRepositoryImpl implements GroupRepository {
 
     @Override
     public void deleteById(Integer id) {
-        String statement = "DELETE FROM Groups WHERE id = " + id;
+        String statement = "WITH delete_presents as (DELETE FROM Presents " +
+                "WHERE lesson_id = (SELECT id FROM Lessons WHERE group_id = " + id + "))," +
+                "delete_members as (DELETE FROM Users WHERE group_id = " + id + "), " +
+                "delete_lessons as (DELETE FROM Lessons WHERE group_id = " + id + ") " +
+                "DELETE FROM Groups WHERE id = " + id;
         connector.executeStatement(statement);
     }
 
@@ -96,7 +107,11 @@ public class GroupRepositoryImpl implements GroupRepository {
     public boolean existsById(Integer id) {
         String statement = "SELECT * FROM Groups WHERE id = " + id;
         ResultSet result = connector.executeStatement(statement);
-        return result != null;
+        try {
+            return result.next();
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     @Override
@@ -108,18 +123,22 @@ public class GroupRepositoryImpl implements GroupRepository {
             return Optional.empty();
         } else {
             try {
-                Integer id = result.getInt(1);
-                String groupHeadLogin = result.getString(3);
-                String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id;
-                ResultSet resultLogins = connector.executeStatement(getLoginsStatement);
-                ArrayList<String> memberLogins = new ArrayList<>();
-                while(resultLogins.next()) {
-                    memberLogins.add(resultLogins.getString(1));
+                while (result.next()) {
+                    Integer id = (int) result.getLong("id");
+                    String groupHeadLogin = result.getString("grouphead_login");
+                    String getLoginsStatement = "SELECT login FROM Users WHERE group_id = " + id +
+                            " AND (user_type = 'student' OR user_type = 'group_head')";
+                    ResultSet resultLogins = connector.executeStatement(getLoginsStatement);
+                    ArrayList<String> memberLogins = new ArrayList<>();
+                    while(resultLogins.next()) {
+                        memberLogins.add(resultLogins.getString(1));
+                    }
+                    return Optional.of(new Group(id, name, groupHeadLogin, memberLogins));
                 }
-                return Optional.of(new Group(id, name, groupHeadLogin, memberLogins));
             } catch (SQLException e) {
                 return Optional.empty();
             }
         }
+        return Optional.empty();
     }
 }

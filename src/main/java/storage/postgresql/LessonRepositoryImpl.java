@@ -5,9 +5,12 @@ import storage.LessonRepository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class LessonRepositoryImpl implements LessonRepository {
@@ -28,35 +31,27 @@ public class LessonRepositoryImpl implements LessonRepository {
 
 		try {
 			while (lessonsSet.next()) {
-				Integer id = lessonsSet.getInt(0);
-				LocalDate localDate = lessonsSet.getObject(1, LocalDate.class);
-				LocalTime localTime = lessonsSet.getObject(2, LocalTime.class);
+				Integer id = lessonsSet.getInt(1);
+				String localDate = lessonsSet.getString(2);
+				String localTime = lessonsSet.getString(3);
 
-				LocalDateTime dateTime = localDate.atTime(localTime);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				LocalDateTime dateTime = LocalDateTime.parse(localDate + " " + localTime, formatter);
 
-				String homework = lessonsSet.getString(3);
-				String discipline = lessonsSet.getString(4);
-				String description = lessonsSet.getString(6);
-				String teacherLogin = lessonsSet.getString(7);
+				String homework = lessonsSet.getString(4);
+				String discipline = lessonsSet.getString(5);
+				String description = lessonsSet.getString(7);
+				String teacherLogin = lessonsSet.getString(8);
 
 				Map<String, Boolean> presentsForLesson = new HashMap<>();
-				Lesson lesson = new Lesson(presentsForLesson);
+				Lesson lesson = new Lesson(id, dateTime, description, discipline, homework, Integer.valueOf(groupId), teacherLogin, presentsForLesson);
 
 				String getPresentsCommand = String.format("Select * FROM Presents WHERE lesson_id = %s", id);
 
 				ResultSet presentSet = connector.executeStatement(getPresentsCommand);
 				while (presentSet.next()) {
-					lesson.addPresent(presentSet.getString(1));
+					lesson.addPresent(presentSet.getString(2));
 				}
-
-				lesson.setLessonId(id);
-				lesson.setDateTime(dateTime);
-				lesson.setDescription(description);
-				lesson.setHomework(homework);
-				lesson.setDiscipline(discipline);
-				lesson.setTeacherLogin(teacherLogin);
-				lesson.setGroupId(Integer.valueOf(groupId));
-
 				lessons.add(lesson);
 			}
 
@@ -79,40 +74,32 @@ public class LessonRepositoryImpl implements LessonRepository {
 
 		try {
 			while (lessonsSet.next()) {
-				Integer id = lessonsSet.getInt(0);
-				LocalDate localDate = lessonsSet.getObject(1, LocalDate.class);
-				LocalTime localTime = lessonsSet.getObject(2, LocalTime.class);
+				Integer id = lessonsSet.getInt(1);
+				String localDate = lessonsSet.getString(2);
+				String localTime = lessonsSet.getString(3);
 
-				LocalDateTime dateTime = localDate.atTime(localTime);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				LocalDateTime dateTime = LocalDateTime.parse(localDate + " " + localTime, formatter);
 
-				String homework = lessonsSet.getString(3);
-				String discipline = lessonsSet.getString(4);
-				Integer groupId = lessonsSet.getInt(5);
-				String description = lessonsSet.getString(6);
+				String homework = lessonsSet.getString(4);
+				String discipline = lessonsSet.getString(5);
+				Integer groupId = lessonsSet.getInt(6);
+				String description = lessonsSet.getString(7);
 
 
 				Map<String, Boolean> presentsForLesson = new HashMap<>();
-				Lesson lesson = new Lesson(presentsForLesson);
+				Lesson lesson = new Lesson(id, dateTime, description, discipline, homework, groupId, teacherLogin, presentsForLesson);
+
 
 				String getPresentsCommand = String.format("Select * FROM Presents WHERE lesson_id = %s", id);
 
 				ResultSet presentSet = connector.executeStatement(getPresentsCommand);
 				while (presentSet.next()) {
-					lesson.addPresent(presentSet.getString(1));
+					lesson.addPresent(presentSet.getString(2));
 				}
-
-				lesson.setLessonId(id);
-				lesson.setDateTime(dateTime);
-				lesson.setDescription(description);
-				lesson.setHomework(homework);
-				lesson.setDiscipline(discipline);
-				lesson.setTeacherLogin(teacherLogin);
-				lesson.setGroupId(groupId);
 
 				lessons.add(lesson);
 			}
-
-			lessonsSet.close();
 
 			return lessons;
 		} catch (SQLException ex) {
@@ -154,7 +141,8 @@ public class LessonRepositoryImpl implements LessonRepository {
 				String teacherLogin = lessonsSet.getString(7);
 
 				Map<String, Boolean> presentsForLesson = new HashMap<>();
-				Lesson lesson = new Lesson(presentsForLesson);
+				Lesson lesson = new Lesson(id, dateTime, description, discipline, homework, groupId, teacherLogin, presentsForLesson);
+
 
 				String getPresentsCommand = String.format("Select * FROM Presents WHERE lesson_id = %s", id);
 
@@ -162,14 +150,6 @@ public class LessonRepositoryImpl implements LessonRepository {
 				while (presentSet.next()) {
 					lesson.addPresent(presentSet.getString(1));
 				}
-
-				lesson.setLessonId(id);
-				lesson.setDateTime(dateTime);
-				lesson.setDescription(description);
-				lesson.setHomework(homework);
-				lesson.setDiscipline(discipline);
-				lesson.setTeacherLogin(teacherLogin);
-				lesson.setGroupId(groupId);
 
 				return Optional.of(lesson);
 			} catch (SQLException e) {
@@ -190,35 +170,28 @@ public class LessonRepositoryImpl implements LessonRepository {
 		ArrayList<Lesson> lessons = new ArrayList<>();
 		try {
 			while (lessonsSet.next()) {
-				Integer id = lessonsSet.getInt(0);
-				LocalDate localDate = lessonsSet.getObject(1, LocalDate.class);
-				LocalTime localTime = lessonsSet.getObject(2, LocalTime.class);
+				Integer id = lessonsSet.getInt(1);
+				String localDate = lessonsSet.getString(2);
+				String localTime = lessonsSet.getString(3);
 
-				LocalDateTime dateTime = localDate.atTime(localTime);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				LocalDateTime dateTime = LocalDateTime.parse(localDate + " " + localTime, formatter);
 
-				String homework = lessonsSet.getString(3);
-				String discipline = lessonsSet.getString(4);
-				Integer groupId = lessonsSet.getInt(5);
-				String description = lessonsSet.getString(6);
-				String teacherLogin = lessonsSet.getString(7);
+				String homework = lessonsSet.getString(4);
+				String discipline = lessonsSet.getString(5);
+				Integer groupId = lessonsSet.getInt(6);
+				String description = lessonsSet.getString(7);
+				String teacherLogin = lessonsSet.getString(8);
 
 				Map<String, Boolean> presentsForLesson = new HashMap<>();
-				Lesson lesson = new Lesson(presentsForLesson);
+				Lesson lesson = new Lesson(id, dateTime, description, discipline, homework, groupId, teacherLogin, presentsForLesson);
 
 				String getPresentsCommand = String.format("Select * FROM Presents WHERE lesson_id = %s", id);
 
 				ResultSet presentSet = connector.executeStatement(getPresentsCommand);
 				while (presentSet.next()) {
-					lesson.addPresent(presentSet.getString(1));
+					lesson.addPresent(presentSet.getString(2));
 				}
-
-				lesson.setLessonId(id);
-				lesson.setDateTime(dateTime);
-				lesson.setDescription(description);
-				lesson.setHomework(homework);
-				lesson.setDiscipline(discipline);
-				lesson.setTeacherLogin(teacherLogin);
-				lesson.setGroupId(groupId);
 
 				lessons.add(lesson);
 			}
@@ -233,70 +206,68 @@ public class LessonRepositoryImpl implements LessonRepository {
 
 	@Override
 	public void deleteById(Integer id) {
-		String deleteLessonCommand = String.format("DELETE FROM Lessons WHERE id = %s", id);
+		String deletePresentsCommand = String.format("DELETE FROM Presents WHERE lesson_id = %s", id);
+		connector.executeStatement(deletePresentsCommand);
 
-		ResultSet resultSet = connector.executeStatement(deleteLessonCommand);
-		try {
-			resultSet.close();
-		} catch (SQLException ignored) {}
+		String deleteLessonCommand = String.format("DELETE FROM Lessons WHERE id = %s", id);
+		connector.executeStatement(deleteLessonCommand);
+
 	}
 
 	@Override
 	public void update(Lesson entity) {
-		try {
-			LocalDate date = entity.getDateTime().toLocalDate();
-			LocalTime time = entity.getDateTime().toLocalTime();
+		LocalDate date = entity.getDateTime().toLocalDate();
+		LocalTime time = entity.getDateTime().toLocalTime();
 
-			Integer id = entity.getLessonId();
-			String homework = entity.getHomework();
-			String discipline = entity.getDiscipline();
-			Integer groupId = entity.getGroupId();
-			String description = entity.getDescription();
-			String teacherLogin = entity.getTeacherLogin();
+		Integer id = entity.getLessonId();
+		String homework = entity.getHomework();
+		String discipline = entity.getDiscipline();
+		Integer groupId = entity.getGroupId();
+		String description = entity.getDescription();
+		String teacherLogin = entity.getTeacherLogin();
 
-			String updateLessonCommand = String.format("UPDATE Lessons SET date = date '%s', time = time '%s', homework = '%s', discipline = '%s', group_id = %s, description = '%s', teacher_login = '%s' WHERE id = %s",
-					date, time, homework, discipline, groupId, description, teacherLogin, id);
+		String updateLessonCommand = String.format("UPDATE Lessons SET date = date '%s', time = time '%s', homework = '%s', discipline = '%s', group_id = %s, description = '%s', teacher_login = '%s' WHERE id = %s",
+				date, time, homework, discipline, groupId, description, teacherLogin, id);
 
-			ResultSet resultSet = connector.executeStatement(updateLessonCommand);
-			resultSet.close();
+		ResultSet resultSet = connector.executeStatement(updateLessonCommand);
 
-			Map<String, Boolean> presents = entity.getIsPresent();
+		Map<String, Boolean> presents = entity.getIsPresent();
 
-			for (String name : presents.keySet()) {
-				if (presents.get(name)) {
-					String existsPresentCommand = String.format("EXISTS (SELECT * FROM Presents WHERE lesson_id = %s AND login = '%s')", id, name);
+		for (String name : presents.keySet()) {
+			if (presents.get(name)) {
+				String existsPresentCommand = String.format("SELECT * FROM Presents WHERE lesson_id = %s AND login = '%s'", id, name);
 
-					ResultSet present = connector.executeStatement(existsPresentCommand);
-					if (present == null) {
-						String addPresentCommand = String.format("INSERT INTO Presents VALUES(%s, '%s')", id, name);
+				ResultSet present = connector.executeStatement(existsPresentCommand);
+				if (present == null) {
+					String addPresentCommand = String.format("INSERT INTO Presents VALUES(%s, '%s')", id, name);
 
-						ResultSet results = connector.executeStatement(addPresentCommand);
-						results.close();
-					} else {
-						present.close();
-					}
-				} else {
-					String existsPresentCommand = String.format("EXISTS (SELECT * FROM Presents WHERE lesson_id = %s AND login = '%s')", id, name);
+					connector.executeStatement(addPresentCommand);
 
-					ResultSet present = connector.executeStatement(existsPresentCommand);
-					if (present != null) {
-						present.close();
+				}
+			} else {
+				String existsPresentCommand = String.format("SELECT * FROM Presents WHERE lesson_id = %s AND login = '%s'", id, name);
 
-						String deletePresentCommand = String.format("DELETE FROM Presents WHERE lesson_id = %s AND login = '%s'", id, name);
+				ResultSet present = connector.executeStatement(existsPresentCommand);
+				if (present != null) {
 
-						ResultSet results = connector.executeStatement(deletePresentCommand);
-						results.close();
-					}
+					String deletePresentCommand = String.format("DELETE FROM Presents WHERE lesson_id = %s AND login = '%s'", id, name);
+
+					connector.executeStatement(deletePresentCommand);
 				}
 			}
-		} catch (SQLException ignored) {}
+		}
 	}
 
 	@Override
 	public boolean existsById(Integer login) {
-		String existsLessonCommand = String.format("EXISTS (SELECT discipline FROM Lessons WHERE id = %s)", login);
+		String existsLessonCommand = String.format("SELECT discipline FROM Lessons WHERE id = %s", login);
 
 		ResultSet lesson = connector.executeStatement(existsLessonCommand);
-		return lesson != null;
+
+        try {
+        	return lesson.next();
+		} catch (SQLException ex) {
+        	return false;
+		}
 	}
 }

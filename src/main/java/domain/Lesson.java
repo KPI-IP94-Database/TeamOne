@@ -30,7 +30,7 @@ public class Lesson {
     }
 
     public void addPresent(String studentLogin) {
-        isPresent.replace(studentLogin, true);
+        isPresent.put(studentLogin, true);
     }
 
     public boolean isPresent(String studentLogin) {

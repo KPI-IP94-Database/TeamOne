@@ -35,7 +35,6 @@ public class Connector {
             statement.close();
             return resultSet;
         } catch (SQLException ex) {
-            System.out.println(ex);
             return null;
         }
     }
