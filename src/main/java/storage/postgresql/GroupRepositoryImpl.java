@@ -16,13 +16,18 @@ public class GroupRepositoryImpl implements GroupRepository {
 
     @Override
     public Group saveNewEntity(Group entity) {
-        Integer id = entity.getId();
         String name = entity.getName();
         String groupheadLogin = entity.getGroupHeadLogin();
-        String statement = "INSERT INTO Groups " +
-                "VALUES('" + id + "', '" + name + "', '" + groupheadLogin + "')";
-        connector.executeStatement(statement);
-        return entity;
+        String statement = "INSERT INTO Groups(name, grouphead_login) " +
+                "VALUES('" + name + "', '" + groupheadLogin + "')";
+        ResultSet result = connector.executeStatement(statement);
+        try {
+            Integer id = result.getInt(1);
+            entity.setId(id);
+            return entity;
+        } catch (SQLException exception) {
+            return null;
+        }
     }
 
     @Override
@@ -99,5 +104,4 @@ public class GroupRepositoryImpl implements GroupRepository {
             }
         }
     }
-}
 }
