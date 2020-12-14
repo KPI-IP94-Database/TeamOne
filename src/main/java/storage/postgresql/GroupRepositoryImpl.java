@@ -77,8 +77,7 @@ public class GroupRepositoryImpl implements GroupRepository {
 
     @Override
     public boolean existsById(Integer id) {
-        String statement = "EXISTS (SELECT * FROM Groups WHERE id = "
-                + id + ")";
+        String statement = "SELECT * FROM Groups WHERE id = " + id;
         ResultSet result = connector.executeStatement(statement);
         return result != null;
     }
@@ -100,4 +99,5 @@ public class GroupRepositoryImpl implements GroupRepository {
             }
         }
     }
+}
 }
