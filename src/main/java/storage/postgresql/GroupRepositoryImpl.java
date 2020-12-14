@@ -2,7 +2,6 @@ package storage.postgresql;
 
 import domain.Group;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import storage.GroupRepository;
 
 import java.sql.ResultSet;
