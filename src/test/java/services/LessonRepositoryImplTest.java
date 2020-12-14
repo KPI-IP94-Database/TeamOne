@@ -226,11 +226,11 @@ public class LessonRepositoryImplTest {
 
 	@Test
 	void findById() {
-		Optional<Lesson> user1 = repository.findById(1);
-		assertTrue(user1.isPresent());
+		Optional<Lesson> lesson1 = repository.findById(1);
+		assertTrue(lesson1.isPresent());
 
-		Optional<Lesson> user2 = repository.findById(5);
-		assertTrue(user2.isPresent());
+		Optional<Lesson> lesson2 = repository.findById(5);
+		assertTrue(lesson2.isPresent());
 	}
 
 	@Test
